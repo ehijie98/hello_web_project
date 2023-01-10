@@ -10,6 +10,15 @@ You'll need to include:
   * any query parameters (passed in the URL)
   * or body parameters (passed in the request body)
 
+# Request:
+POST http://localhost:9292/sort-names
+
+# With body parameters:
+names=Joe,Alice,Zoe,Julia,Kieran
+
+# Expected response (sorted list of names):
+Alice,Joe,Julia,Kieran,Zoe
+
 ## 2. Design the Response
 
 The route might return different responses, depending on the result.
@@ -27,7 +36,7 @@ _Replace the below with your own design. Think of all the different possible res
 <html>
   <head></head>
   <body>
-    <div>Post content</div>
+    <div>Alice, Joe, Julia, Kieran, Zoe</div>
   </body>
 </html>
 ```
@@ -39,8 +48,8 @@ _Replace the below with your own design. Think of all the different possible res
 <html>
   <head></head>
   <body>
-    <h1>Sorry!</h1>
-    <div>We couldn't find this post. Have a look at the homepage?</div>
+    <h1>ERROR!</h1>
+    <div>Invalid request</div>
   </body>
 </html>
 ```
@@ -52,9 +61,10 @@ _Replace these with your own design._
 ```
 # Request:
 
-GET /posts?id=1
+POST /sort-names
 
 # Expected response:
+Alice, Joe, Julia, Kieran, Zoe
 
 Response for 200 OK
 ```
@@ -62,9 +72,12 @@ Response for 200 OK
 ```
 # Request:
 
-GET /posts?id=276278
+POST /names
 
 # Expected response:
+Error!
+
+Invalid request
 
 Response for 404 Not Found
 ```
@@ -77,25 +90,25 @@ Response for 404 Not Found
 
 require "spec_helper"
 
-describe Application do
+RSpec.describe Application do
   include Rack::Test::Methods
 
   let(:app) { Application.new }
 
-  context "GET /" do
+  context "POST /sort-names" do
     it 'returns 200 OK' do
       # Assuming the post with id 1 exists.
-      response = get('/posts?id=1')
+      response = post('/sort-names', names: "Joe,Alice,Zoe,Julia,Kieran")
 
       expect(response.status).to eq(200)
-      # expect(response.body).to eq(expected_response)
+      expect(response.body).to eq("Alice,Joe,Julia,Kieran,Zoe")
     end
 
     it 'returns 404 Not Found' do
-      response = get('/posts?id=276278')
+      response = post('/names')
 
       expect(response.status).to eq(404)
-      # expect(response.body).to eq(expected_response)
+      expect(response.body).to eq('returns 404 Not Found')
     end
   end
 end
